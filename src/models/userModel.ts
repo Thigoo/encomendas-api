@@ -6,6 +6,7 @@ export interface IUser extends Document {
   email: string;
   password: string;
   matchPassword: (enteredPassword: string) => Promise<boolean>;
+  _id: mongoose.Types.ObjectId;
 }
 
 const userSchema: Schema = new Schema(
