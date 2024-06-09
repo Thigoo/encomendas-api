@@ -32,7 +32,7 @@ const registerUser: RequestHandler = asyncHandler(async (req, res) => {
   }
 });
 
-const authUser: RequestHandler = asyncHandler(async (req, res) => {
+const login: RequestHandler = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
   const user = await User.findOne({ email });
@@ -50,4 +50,4 @@ const authUser: RequestHandler = asyncHandler(async (req, res) => {
   }
 });
 
-export { registerUser, authUser };
+export { registerUser, login };
