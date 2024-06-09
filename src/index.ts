@@ -5,6 +5,7 @@ import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 import connectDB from './config/database';
 import authRoutes from './routes/authRoutes';
+import orderRoutes from './routes/orderRoutes';
 
 dotenv.config();
 
@@ -24,6 +25,7 @@ const limiter = rateLimit({
 app.use(limiter);
 
 app.use('/api/auth', authRoutes);
+app.use('/api/orders', orderRoutes);
 
 const PORT = process.env.PORT || 3000;
 
