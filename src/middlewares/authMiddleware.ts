@@ -1,7 +1,8 @@
 import { NextFunction, Request, RequestHandler, Response } from 'express';
-import User, { IUser } from '../models/userModel';
+import { IUser } from '../interfaces/user';
 import asyncHandler from 'express-async-handler';
 import jwt from 'jsonwebtoken';
+import User from '../models/userModel';
 
 interface JwtPayload {
   id: string;

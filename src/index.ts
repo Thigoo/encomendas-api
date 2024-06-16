@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import connectDB from './config/database';
 import authRoutes from './routes/authRoutes';
 import orderRoutes from './routes/orderRoutes';
+import productRoutes from './routes/productRoutes';
 
 dotenv.config();
 
@@ -26,6 +27,7 @@ app.use(limiter);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/products', productRoutes);
 
 const PORT = process.env.PORT || 3000;
 
