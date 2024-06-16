@@ -1,12 +1,5 @@
 import mongoose, { Document, Schema } from 'mongoose';
-
-export interface IOrder extends Document {
-  product: string;
-  theme: string;
-  value: number;
-  isPaid: boolean;
-  user: mongoose.Types.ObjectId;
-}
+import { IOrder } from '../interfaces/order';
 
 const orderSchema: Schema = new Schema(
   {

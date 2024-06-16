@@ -1,6 +1,6 @@
 import { RequestHandler } from 'express';
 import asyncHandler from 'express-async-handler';
-import { IUser } from '../models/userModel';
+import { IUser } from '../interfaces/user';
 import Order from '../models/orderModel';
 import { AuthRequest } from '../middlewares/authMiddleware';
 
