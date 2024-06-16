@@ -1,7 +1,7 @@
 import { RequestHandler } from 'express';
 import asyncHandler from 'express-async-handler';
 import { IUser } from '../models/userModel';
-import Order from '../models/oderModel';
+import Order from '../models/orderModel';
 import { AuthRequest } from '../middlewares/authMiddleware';
 
 export const createOrder: RequestHandler = asyncHandler(async (req: AuthRequest, res) => {
