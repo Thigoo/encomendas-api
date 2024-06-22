@@ -2,6 +2,7 @@ import { RequestHandler } from 'express';
 import asyncHandler from 'express-async-handler';
 import User from '../models/userModel';
 import generateToken from '../utils/generateToken';
+import { AuthRequest } from '../middlewares/authMiddleware';
 
 const registerUser: RequestHandler = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
@@ -24,7 +25,7 @@ const registerUser: RequestHandler = asyncHandler(async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
-      token: generateToken(user._id.toString())
+      token: generateToken(user._id.toString()),
     });
   } else {
     res.status(401);
@@ -42,7 +43,7 @@ const login: RequestHandler = asyncHandler(async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
-      token: generateToken(user._id.toString())
+      token: generateToken(user._id.toString()),
     });
   } else {
     res.status(401);
@@ -50,4 +51,13 @@ const login: RequestHandler = asyncHandler(async (req, res) => {
   }
 });
 
-export { registerUser, login };
+const fetchUserData: RequestHandler = asyncHandler(async (req: AuthRequest, res) => {
+  try {
+    const user = await User.findById(req.user?.id).select('-password');
+  res.json(user);
+  } catch (error) {
+    console.log('Erro ao buscar dados de usuário', error);
+  }
+});
+
+export { registerUser, login, fetchUserData };
