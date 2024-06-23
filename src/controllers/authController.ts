@@ -39,12 +39,16 @@ const login: RequestHandler = asyncHandler(async (req, res) => {
   const user = await User.findOne({ email });
 
   if (user && (await user.matchPassword(password))) {
-    res.json({
+    const userData = {
       _id: user._id,
       name: user.name,
       email: user.email,
+    };
+
+    res.json({
       token: generateToken(user._id.toString()),
-    });
+      userData: userData,
+    });    
   } else {
     res.status(401);
     throw new Error('Credenciais inválidas');
