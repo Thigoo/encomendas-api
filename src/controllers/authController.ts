@@ -24,14 +24,13 @@ const registerUser: RequestHandler = asyncHandler(async (req, res) => {
 
     res.status(201).json({
       message: 'Conta criada com sucesso',
-      payload: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        token: generateToken(user._id.toString()),
-      },
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      token: generateToken(user._id.toString()),
     });
   } catch (error) {
+    console.log('Erro ao criar conta', error);
     res.status(401).json({
       message: 'Dados inválidos',
     });
@@ -41,12 +40,12 @@ const registerUser: RequestHandler = asyncHandler(async (req, res) => {
 const login: RequestHandler = asyncHandler(async (req, res): Promise<any> => {
   const { email, password } = req.body;
 
-  if (!email || !password) {    
+  if (!email || !password) {
     return res.status(400).json({
       message: 'Preencha todos os campos',
     });
   }
-  
+
   const user = await User.findOne({ email });
 
   if (!user) {

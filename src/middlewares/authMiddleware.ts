@@ -27,22 +27,24 @@ export const protect: RequestHandler = asyncHandler(
           process.env.JWT_SECRET!,
         ) as JwtPayload;
         const user = await User.findById(decoded.id).select('-password');
-        if(!user) {
+        if (!user) {
           req.user = null;
-        } else {
-          req.user = user;
         }
+        req.user = user;
+
         next();
-      } catch (err) {
-        console.error(err);
-        res.status(401);
-        throw new Error('Not authorized, token failed');
+      } catch (error) {
+        console.error('Erro ao verificar o token', error);
+        res.status(401).json({
+          message: 'Token inválido',
+        });
       }
     }
 
     if (!token) {
-      res.status(401);
-      throw new Error('Not authorized, no token');
+      res.status(401).json({
+        message: 'Insira um token',
+      });
     }
   },
 );
