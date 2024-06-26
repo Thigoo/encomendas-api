@@ -10,58 +10,88 @@ const registerUser: RequestHandler = asyncHandler(async (req, res) => {
   const userExists = await User.findOne({ email });
 
   if (userExists) {
-    res.status(400);
-    throw new Error('Usuário já existe');
+    res.status(400).json({
+      message: 'Usuário ja existe',
+    });
   }
 
-  const user = await User.create({
-    name,
-    email,
-    password,
-  });
-
-  if (user) {
-    res.status(201).json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      token: generateToken(user._id.toString()),
+  try {
+    const user = await User.create({
+      name,
+      email,
+      password,
     });
-  } else {
-    res.status(401);
-    throw new Error('Dados do usuário inválidos');
+
+    res.status(201).json({
+      message: 'Conta criada com sucesso',
+      payload: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        token: generateToken(user._id.toString()),
+      },
+    });
+  } catch (error) {
+    res.status(401).json({
+      message: 'Dados inválidos',
+    });
   }
 });
 
-const login: RequestHandler = asyncHandler(async (req, res) => {
+const login: RequestHandler = asyncHandler(async (req, res): Promise<any> => {
   const { email, password } = req.body;
 
+  if (!email || !password) {    
+    return res.status(400).json({
+      message: 'Preencha todos os campos',
+    });
+  }
+  
   const user = await User.findOne({ email });
 
-  if (user && (await user.matchPassword(password))) {
-    const userData = {
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-    };
-
-    res.json({
-      token: generateToken(user._id.toString()),
-      userData: userData,
-    });    
-  } else {
-    res.status(401);
-    throw new Error('Credenciais inválidas');
+  if (!user) {
+    return res.status(401).json({
+      message: 'Usuário não encontrado',
+    });
   }
-});
 
-const fetchUserData: RequestHandler = asyncHandler(async (req: AuthRequest, res) => {
   try {
-    const user = await User.findById(req.user?.id).select('-password');
-  res.json(user);
+    if (user && (await user.matchPassword(password))) {
+      const userData = {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+      };
+
+      return res.status(200).json({
+        message: 'Login realizado com sucesso',
+        _id: userData._id,
+        name: userData.name,
+        email: userData.email,
+        token: generateToken(user._id.toString()),
+      });
+    } else {
+      return res.status(401).json({
+        message: 'Credenciais inválidas',
+      });
+    }
   } catch (error) {
-    console.log('Erro ao buscar dados de usuário', error);
+    console.error('Erro ao fazer login', error);
+    res.status(500).json({
+      message: 'Erro no servidor',
+    });
   }
 });
+
+const fetchUserData: RequestHandler = asyncHandler(
+  async (req: AuthRequest, res) => {
+    try {
+      const user = await User.findById(req.user?.id).select('-password');
+      res.json(user);
+    } catch (error) {
+      console.log('Erro ao buscar dados de usuário', error);
+    }
+  },
+);
 
 export { registerUser, login, fetchUserData };
