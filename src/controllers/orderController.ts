@@ -26,6 +26,7 @@ export const createOrder: RequestHandler = asyncHandler(
 
       res.status(201).json({
         message: 'Encomenda criada com sucesso',
+        id: order._id,
         product: order.product,
         theme: order.theme,
         value: order.value,
@@ -44,33 +45,56 @@ export const updateOrder: RequestHandler = asyncHandler(async (req, res) => {
   const { id } = req.params;
   const { product, theme, value, isPaid } = req.body;
 
-  const order = await Order.findById(id);
+  try {
+    const order = await Order.findById(id);
+    if (order) {
+      order.product = product;
+      order.theme = theme;
+      order.value = value;
+      order.isPaid = isPaid;
 
-  if (order) {
-    order.product = product;
-    order.theme = theme;
-    order.value = value;
-    order.isPaid = isPaid;
-
-    const updateOrder = await order.save();
-    res.json(updateOrder);
-  } else {
-    res.status(404);
-    throw new Error('Encomenda não encontrada');
+      const updatedOrder = await order.save();
+      
+      res.status(200).json({
+        message: 'Encomenda atualizada com sucesso',
+        product: updatedOrder.product,
+        theme: updatedOrder.theme,
+        value: updatedOrder.value,
+        isPaid: updatedOrder.isPaid,
+        user: updatedOrder.user,
+      }); 
+    } else {
+      res.status(404).json({
+        message: 'Encomenda não encontrada',
+      });
+      
+    }
+  } catch (error) {
+    res.status(500).json({
+      message: 'Erro interno ao atualizar encomenda',
+    });
   }
 });
 
 export const deleteOrder: RequestHandler = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
-  const order = await Order.findById(id);
-
-  if (order) {
-    await order.deleteOne();
-    res.json({ message: 'Encomenda removida' });
-  } else {
-    res.status(404);
-    throw new Error('Encomenda não encontrada');
+  try {
+    const order = await Order.findById(id);
+    if (order) {
+      await order.deleteOne();
+      res.status(200).json({
+        message: 'Encomenda deletada com sucesso',
+      });
+    } else {
+      res.status(404).json({
+        message: 'Encomenda não encontrada',
+      });
+    } 
+  } catch (error) {
+    res.status(500).json({
+      message: 'Erro interno ao deletar encomenda', 
+    });
   }
 });
 
