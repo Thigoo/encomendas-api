@@ -7,6 +7,8 @@ import connectDB from './config/database';
 import authRoutes from './routes/authRoutes';
 import orderRoutes from './routes/orderRoutes';
 import productRoutes from './routes/productRoutes';
+import { errors } from 'celebrate';
+import errorHandler from './middlewares/errorHandler';
 
 dotenv.config();
 
@@ -28,6 +30,9 @@ app.use(limiter);
 app.use('/api/auth', authRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/products', productRoutes);
+
+app.use(errorHandler);
+app.use(errors());
 
 const PORT = process.env.PORT || 3000;
 

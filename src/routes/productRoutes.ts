@@ -7,10 +7,15 @@ import {
   getProducts,
   updateProduct,
 } from '../controllers/productController';
+import { celebrate } from 'celebrate';
+import { productValidation } from '../validations/productValidation';
 
 const router = express.Router();
 
-router.route('/').post(protect, createProduct).get(protect, getProducts);
+router
+  .route('/')
+  .post(protect, celebrate(productValidation), createProduct)
+  .get(protect, getProducts);
 
 router
   .route('/:id')

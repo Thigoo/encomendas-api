@@ -7,10 +7,15 @@ import {
   getOrders,
   updateOrder,
 } from '../controllers/orderController';
+import { celebrate } from 'celebrate';
+import { orderValidation } from '../validations/orderValidation';
 
 const router = express.Router();
 
-router.route('/').post(protect, createOrder).get(protect, getOrders);
+router
+  .route('/')
+  .post(protect, celebrate(orderValidation), createOrder)
+  .get(protect, getOrders);
 
 router
   .route('/:id')

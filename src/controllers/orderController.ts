@@ -9,12 +9,6 @@ export const createOrder: RequestHandler = asyncHandler(
     const { product, theme, value, isPaid } = req.body;
     const user = req.user as IUser;
 
-    if (!product || !theme || !value || !isPaid) {
-      res.status(400).json({
-        message: 'Preencha todos os campos',
-      });
-    }
-
     if (!user) {
       res.status(401).json({
         message: 'Não autorizado, sem usuário',
@@ -40,7 +34,7 @@ export const createOrder: RequestHandler = asyncHandler(
       });
     } catch (error) {
       res.status(401).json({
-        message: 'Dados inválidos',
+        message: 'Dados inválidos'
       });
     }
   },

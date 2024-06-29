@@ -8,6 +8,13 @@ export const createProduct: RequestHandler = asyncHandler(
   async (req: AuthRequest, res) => {
     const { name, value } = req.body;
     const user = req.user as IUser;
+    
+    if(!name || !value) {
+      res.status(400).send({
+        message: 'Preencha todos os campos',
+      });
+
+    }
 
     if (!user) {
       res.status(401);
