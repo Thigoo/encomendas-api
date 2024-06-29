@@ -20,7 +20,7 @@ router
 router
   .route('/:id')
   .get(protect, getProduct)
-  .put(protect, updateProduct)
+  .put(protect, celebrate(productValidation),updateProduct)
   .delete(protect, deleteProduct);
 
 export default router;

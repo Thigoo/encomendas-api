@@ -8,27 +8,32 @@ export const createProduct: RequestHandler = asyncHandler(
   async (req: AuthRequest, res) => {
     const { name, value } = req.body;
     const user = req.user as IUser;
-    
-    if(!name || !value) {
-      res.status(400).send({
-        message: 'Preencha todos os campos',
-      });
-
-    }
 
     if (!user) {
-      res.status(401);
-      throw new Error('Não autorizado, sem usuário');
+      res.status(401).json({
+        message: 'Não autorizado, sem usuário',
+      });
     }
 
-    const product = new Product({
-      name,
-      value,
-      user: user._id,
-    });
+    try {
+      const product = await Product.create({
+        name,
+        value,
+        user: user._id,
+      });
 
-    const createProduct = await product.save();
-    res.status(201).json(createProduct);
+      res.status(201).json({
+        message: 'Produto cadastrado com sucesso',
+        id: product._id,
+        name: product.name,
+        value: product.value,
+        user: product.user,
+      });
+    } catch (error) {
+      res.status(401).json({
+        message: 'Dados inválidos',
+      });
+    }
   },
 );
 
@@ -37,16 +42,29 @@ export const updateProduct: RequestHandler = asyncHandler(
     const { id } = req.params;
     const { name, value } = req.body;
 
-    const product = await Product.findById(id);
+    try {
+      let product = await Product.findById(id);
 
-    if (product) {
-      product.name = name;
-      product.value = value;
-      const updateProduct = await product.save();
-      res.json(updateProduct);
-    } else {
-      res.status(404);
-      throw new Error('Produto não encontrado');
+      if (!product) {
+        res.status(404).json({
+          message: 'Produto não encontrado, verifique o ID fornecido',
+        });
+      }
+
+      product!.name = name;
+      product!.value = value;
+
+      const updateProduct = await product!.save();
+
+      res.status(200).json({
+        message: 'Produto atualizado com sucesso',
+        name: updateProduct.name,
+        value: updateProduct.value,
+      });
+    } catch (error) {
+      res.status(500).json({
+        message: 'Erro interno ao atualizar produto',
+      });
     }
   },
 );
@@ -55,14 +73,22 @@ export const deleteProduct: RequestHandler = asyncHandler(
   async (req: AuthRequest, res) => {
     const { id } = req.params;
 
-    const product = await Product.findById(id);
+    try {
+      const product = await Product.findById(id);
+      if (!product) {
+        res.status(404).json({
+          message: 'Produto não encontrado, verifique o ID fornecido',
+        });
+      }
 
-    if (product) {
-      await product.deleteOne();
-      res.json({ message: 'Produto removido com sucesso' });
-    } else {
-      res.status(404);
-      throw new Error('Produto não encontrado');
+      await product!.deleteOne();
+      res.status(200).json({
+        message: 'Produto removido com sucesso',
+      });
+    } catch (error) {
+      res.status(500).json({
+        message: 'Erro interno ao remover o produto',
+      });
     }
   },
 );
@@ -70,20 +96,40 @@ export const deleteProduct: RequestHandler = asyncHandler(
 export const getProducts: RequestHandler = asyncHandler(
   async (req: AuthRequest, res) => {
     const user = req.user as IUser;
-    const products = await Product.find({ user: user.id });
-    res.json(products);
+    try {
+      const products = await Product.find({ user: user._id });
+
+      if(products.length === 0) {
+        res.status(404).json({
+          message: 'Nenhum produto encontrado',
+        });
+      }
+
+      res.status(200).json(products);
+    } catch (error) {
+      res.status(500).json({
+        message: 'Erro interno ao buscar os produtos',
+      });
+    }
   },
 );
 
 export const getProduct: RequestHandler = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
-  const product = await Product.findOne({ _id: id });
+  try {
+    const product = await Product.findById(id);
 
-  if (product) {
-    res.json(product);
-  } else {
-    res.status(404);
-    throw new Error('Produto não encontrado');
+    if(!product) {
+      res.status(404).json({
+        message: 'Produto deletado ou ID incorreto',
+      });
+    }
+
+    res.status(200).json(product);
+  } catch (error) {
+    res.status(500).json({  
+      message: 'Erro interno ao buscar o produto',
+    });
   }
 });
